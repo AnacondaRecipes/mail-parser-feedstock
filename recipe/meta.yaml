@@ -1,39 +1,44 @@
 {% set name = "mail-parser" %}
-{% set version = "3.15.0" %}
-
+{% set version = "4.9.0" %}
 
 package:
-  name: {{ name|lower }}
+  name: {{ name }}
   version: {{ version }}
 
 source:
-  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/mail-parser-{{ version }}.tar.gz
-  sha256: d66638acf0633dfd8a718e1e3646a6d58f8e9d75080c94638c7b267b4b0d6c86
+  url: https://pypi.org/packages/source/{{ name[0] }}/{{ name }}/mail_parser-{{ version }}.tar.gz
+  sha256: 6a0ab360e1f4fa0d06aa6ec5cf6855f98ff881adeb3d56d82f99f85a8484b7fb
 
 build:
-  number: 3
+  number: 0
+  # osx-64 is outside the current build-target scope.
+  skip: true  # [py<39 or (osx and x86_64)]
+  script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
   entry_points:
-    - mailparser = mailparser.__main__:main
-  script: {{ PYTHON }} -m pip install . -vv
+    - mail-parser = mailparser.__main__:main
 
 requirements:
   host:
     - pip
     - python
+    - hatchling >=1.27,<1.32
   run:
-    - ipaddress >=1.0.23  # [py<33]
     - python
-    - simplejson >=3.17.0
-    - six >=1.14.0
+  run_constrained:
+    - extract-msg >=0.54  # Optional outlook extra.
 
 test:
+  source_files:
+    - tests/test_security_recovery.py
   imports:
     - mailparser
   commands:
     - pip check
-    - mailparser --help
+    - mail-parser --help
+    - python -m pytest -vv tests/test_security_recovery.py
   requires:
     - pip
+    - pytest >=8.3.4
 
 about:
   home: https://github.com/SpamScope/mail-parser
@@ -42,9 +47,9 @@ about:
   license_file: LICENSE.txt
   summary: 'Tokenizer for raw mails'
   description: |
-    mail-parser is not only a wrapper for email Python Standard Library. 
+    mail-parser is not only a wrapper for email Python Standard Library.
     It give you an easy way to pass from raw mail to Python object that
-    you can use in your code. 
+    you can use in your code.
   doc_url: https://github.com/SpamScope/mail-parser
   dev_url: https://github.com/SpamScope/mail-parser
 
