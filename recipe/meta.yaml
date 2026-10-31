@@ -35,7 +35,10 @@ test:
   commands:
     - pip check
     - mail-parser --help
-    - python -m pytest -vv tests/test_security_recovery.py
+    - python -m pytest -vv tests/test_security_recovery.py  # [not win]
+    # Windows rejects '?' in this attachment name; upstream logs and skips its write.
+    # The test expects both files on disk; keep the other 90 cases active on Windows.
+    - python -m pytest -vv tests/test_security_recovery.py --deselect=tests/test_security_recovery.py::test_bad_filename_and_nested_header_keep_part_context  # [win]
   requires:
     - pip
     - pytest >=8.3.4
